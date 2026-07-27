@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: SunwayIzoneScraper
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: llama3.2
+        temperature: 0.3 # create a balance between randomness and determinism in the model's responses  (less means moer deterministic, more means more random)
+server:
+  port: 8020
+  address: 0.0.0.0 #   Listen on all available network interfaces (not just localhost)
+
