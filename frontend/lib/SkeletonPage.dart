@@ -13,7 +13,12 @@ class SkeletonPage extends StatefulWidget {
 
 class _SkeletonPageState extends State<SkeletonPage> {
   //pages i want to navigate to
-  final List navigationPages = [Timetable(), AI(), Icheckin(), Profile()];
+  final List<Widget> navigationPages = [
+    Timetable(),
+    AI(),
+    Icheckin(),
+    Profile(),
+  ];
 
   int selectedIndex = 0;
 
@@ -83,7 +88,7 @@ class _SkeletonPageState extends State<SkeletonPage> {
         ],
       ),
 
-      body: navigationPages[selectedIndex],
+      body: IndexedStack(index: selectedIndex, children: navigationPages),
     );
   }
 }
