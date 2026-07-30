@@ -68,7 +68,7 @@ public class TimeTableService {
     Object getTimeTable(UserDTO user) {
         // Optional: Run in headless mode so no physical browser window pops up
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless");
+        //options.addArguments("--headless");
 
         WebDriver driver = new ChromeDriver(options);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
