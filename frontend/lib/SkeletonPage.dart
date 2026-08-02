@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test_app/AI.dart';
 import 'package:flutter_test_app/IcheckIn.dart';
-import 'package:flutter_test_app/Profile.dart';
+import 'package:flutter_test_app/UpdateProfile.dart';
 import 'package:flutter_test_app/TimeTable.dart';
 
 class SkeletonPage extends StatefulWidget {
@@ -17,7 +17,7 @@ class _SkeletonPageState extends State<SkeletonPage> {
     Timetable(),
     AI(),
     Icheckin(),
-    Profile(),
+    Updateprofile(),
   ];
 
   int selectedIndex = 0;

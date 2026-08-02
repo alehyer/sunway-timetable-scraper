@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test_app/About.dart';
 import 'package:flutter_test_app/SkeletonPage.dart';
-import 'package:flutter_test_app/Profile.dart';
+//import 'package:flutter_test_app/Profile.dart';
 import 'package:flutter_test_app/UpdateProfile.dart';
 
 void main() {
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: SkeletonPage(),
       routes: {
-        '/profile': (context) => Profile(),
+        // '/profile': (context) => Profile(),
         '/about': (context) => About(),
         '/updateProfile': (context) => Updateprofile(),
       },
