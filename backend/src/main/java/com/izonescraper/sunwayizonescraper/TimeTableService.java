@@ -17,6 +17,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -32,32 +33,38 @@ public class TimeTableService {
     }
 
 
-    private double getStudyHours(int intensity){
-        return 2 + (intensity * 1.6);
+    private int getStudyHours(int intensity){
+        return 2 + (intensity * 2);
     }
 
     public AIResponseFormat getAIRecommendations(UserAIRequest userAIRequest){
 
-        double studyHours = getStudyHours(userAIRequest.getIntensityLevel());
+        int studyHours = getStudyHours(userAIRequest.getIntensityLevel());
+
+        // 1. Create a BeanOutputConverter for your target DTO
+        var outputConverter = new BeanOutputConverter<>(AIResponseFormat.class);
 
         String userPrompt = """
         Student's Current Timetable:
         %s
         
-        Total Required Extra Study Time: %.1f hours
+        Total Required Extra Study Time: %d hours
         
         Task:
         1. Identify free gaps in the current timetable.
-        2. Create a complementary study schedule that fills those gaps up to the total %.1f hours requested.
-        3. Match study sessions to subjects from the current timetable.
-        """.formatted(userAIRequest.getTableHeader(), studyHours, studyHours);
+        2. Create a complementary study schedule that fills those gaps up to the total %d hours requested.
+        3. Match study sessions to subjects from the current timetable. 
+        
+        %s
+        """.formatted(
+                userAIRequest.getTableHeader(),
+                studyHours,
+                studyHours,
+                outputConverter.getFormat() // Appends machine-generated JSON schema instructions
+                );
 
         return chatClient.prompt()
-                .system("""
-                You are an academic scheduling assistant for Sunway University students.
-                Provide raw JSON matching the requested output schema only. 
-                Do NOT include markdown formatting like ```json, intro text, or conversational explanations.
-                """)
+                .system("You are an academic scheduling assistant for Sunway University students.")
                 .user(userPrompt)
                 .call()
                 .entity(AIResponseFormat.class);
@@ -68,7 +75,18 @@ public class TimeTableService {
     Object getTimeTable(UserDTO user) {
         // Optional: Run in headless mode so no physical browser window pops up
         ChromeOptions options = new ChromeOptions();
-        //options.addArguments("--headless");
+        options.addArguments("--headless=new");
+
+        // 2. Set explicit dimensions (headless defaults to a tiny window, causing responsive elements to hide)
+        options.addArguments("--window-size=1920,1080");
+
+        // 3. Override the default Headless User-Agent string to look like a standard browser
+        options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+
+        // 4. Bypass sandbox/GPU issues commonly hit in server/container environments
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-blink-features=AutomationControlled");
 
         WebDriver driver = new ChromeDriver(options);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
