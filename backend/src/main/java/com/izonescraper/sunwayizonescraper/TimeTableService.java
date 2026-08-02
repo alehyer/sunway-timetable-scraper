@@ -10,6 +10,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -43,26 +44,24 @@ public class TimeTableService {
 
         // 1. Create a BeanOutputConverter for your target DTO
         var outputConverter = new BeanOutputConverter<>(AIResponseFormat.class);
-
         String userPrompt = """
         Student's Current Timetable:
         %s
-        
+
         Total Required Extra Study Time: %d hours
-        
+
         Task:
         1. Identify free gaps in the current timetable.
-        2. Create a complementary study schedule that fills those gaps up to the total %d hours requested.
-        3. Match study sessions to subjects from the current timetable. 
-        
+        2. Create a complementary study schedule that fills those gaps up, and the created gaps time combined must match the total %d hours requested.
+        3. Match study sessions to subjects from the current timetable.
+
         %s
         """.formatted(
                 userAIRequest.getTableHeader(),
                 studyHours,
                 studyHours,
                 outputConverter.getFormat() // Appends machine-generated JSON schema instructions
-                );
-
+        );
         return chatClient.prompt()
                 .system("You are an academic scheduling assistant for Sunway University students.")
                 .user(userPrompt)
@@ -101,6 +100,15 @@ public class TimeTableService {
             usernameField.sendKeys(user.getStudentId());
             passwordField.sendKeys(user.getPassword());
             loginButton.click();
+
+            try {
+                wait.until(ExpectedConditions.textToBePresentInElementLocated(
+                        By.tagName("body"), "Invalid Student ID or Password"
+                ));
+                return "Invalid username or password";
+            } catch (TimeoutException e) {
+                // Error text not found, move to success check
+            }
 
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("logoutUrl")));
             System.out.println("Successfully logged in! Current URL: " + driver.getCurrentUrl());

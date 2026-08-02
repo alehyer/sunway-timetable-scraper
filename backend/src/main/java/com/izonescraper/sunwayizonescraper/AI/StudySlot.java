@@ -1,4 +1,8 @@
 package com.izonescraper.sunwayizonescraper.AI;
 
-public record StudySlot(String date, String subject, String time) {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record StudySlot(@JsonProperty("date") String date,
+                        @JsonProperty("subject") String subject,
+                        @JsonProperty("time") String time) {
 }
