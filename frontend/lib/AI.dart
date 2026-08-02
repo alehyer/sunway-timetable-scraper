@@ -176,6 +176,7 @@ class _AIScreenState extends State<AI> {
                       min: 1.0,
                       max: 10.0,
                       divisions: 9,
+                      activeColor: Colors.indigo[900],
                       label: _intensityLevel.toInt().toString(),
                       onChanged: (value) {
                         setState(() {
@@ -186,8 +187,14 @@ class _AIScreenState extends State<AI> {
                     const SizedBox(height: 8),
                     ElevatedButton.icon(
                       onPressed: _isLoading ? null : _fetchAiRecommendations,
-                      icon: const Icon(Icons.auto_awesome),
-                      label: const Text('Generate Study Schedule'),
+                      icon: const Icon(
+                        Icons.auto_awesome,
+                        color: Colors.indigo,
+                      ),
+                      label: const Text(
+                        'Generate Study Schedule',
+                        style: TextStyle(color: Colors.indigo),
+                      ),
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),
                       ),
