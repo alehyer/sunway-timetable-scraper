@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test_app/RefreshSignal.dart';
+import 'package:flutter_test_app/CalendarExport.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Timetable extends StatefulWidget {
@@ -15,6 +16,7 @@ class _TimetableState extends State<Timetable> {
   // Store the raw parsed schedule list directly
   // List<dynamic> timetableData = [];
   bool isLoading = true;
+  bool isExporting = false;
 
   @override
   void initState() {
@@ -56,6 +58,59 @@ class _TimetableState extends State<Timetable> {
     }
   }
 
+  void _showMessage(String message, {bool isError = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : null,
+      ),
+    );
+  }
+
+  Future<void> _handleDownloadIcs() async {
+    if (Timetable.timetableData.isEmpty) {
+      _showMessage('No schedule data loaded yet.', isError: true);
+      return;
+    }
+    final weeks = await CalendarExportService.promptForWeeks(context);
+    if (weeks == null) return; // user cancelled
+
+    setState(() => isExporting = true);
+    try {
+      await CalendarExportService.downloadIcsFile(
+        Timetable.timetableData,
+        weeks: weeks,
+      );
+    } catch (e) {
+      _showMessage('Could not create .ics file: $e', isError: true);
+    } finally {
+      if (mounted) setState(() => isExporting = false);
+    }
+  }
+
+  Future<void> _handleAddToDeviceCalendar() async {
+    if (Timetable.timetableData.isEmpty) {
+      _showMessage('No schedule data loaded yet.', isError: true);
+      return;
+    }
+    final weeks = await CalendarExportService.promptForWeeks(context);
+    if (weeks == null) return; // user cancelled
+
+    setState(() => isExporting = true);
+    try {
+      final result = await CalendarExportService.addToDeviceCalendar(
+        Timetable.timetableData,
+        weeks: weeks,
+      );
+      _showMessage(result);
+    } catch (e) {
+      _showMessage('Could not add to calendar: $e', isError: true);
+    } finally {
+      if (mounted) setState(() => isExporting = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -83,10 +138,14 @@ class _TimetableState extends State<Timetable> {
               )
             : ListView.builder(
                 //a Function (that explains te return statments)
-                itemCount: Timetable.timetableData.length,
+                itemCount: Timetable.timetableData.length + 1,
                 itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return exportOptions();
+                  }
+                  final dataIndex = index - 1;
                   //loop body//The index variable automatically increments on every iteration
-                  final dayData = Timetable.timetableData[index];
+                  final dayData = Timetable.timetableData[dataIndex];
                   final String dayHeader =
                       dayData['Header']; //e.g timetableData[1]['Header'];
                   final List<dynamic> classes = dayData['tableDataList'];
@@ -164,24 +223,39 @@ class _TimetableState extends State<Timetable> {
   }
 
   Widget exportOptions() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        ElevatedButton(
-          onPressed: () {},
-          child: Text(
-            'Import to Calender',
-            style: TextStyle(color: Colors.indigo),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          ElevatedButton(
+            onPressed: isExporting ? null : _handleAddToDeviceCalendar,
+            child: isExporting
+                ? const SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text(
+                    'Import to Calendar',
+                    style: TextStyle(color: Colors.indigo),
+                  ),
           ),
-        ),
-        ElevatedButton(
-          onPressed: () {},
-          child: Text(
-            'Download .ics file',
-            style: TextStyle(color: Colors.indigo),
+          ElevatedButton(
+            onPressed: isExporting ? null : _handleDownloadIcs,
+            child: isExporting
+                ? const SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text(
+                    'Download .ics file',
+                    style: TextStyle(color: Colors.indigo),
+                  ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
