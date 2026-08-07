@@ -1,24 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test_app/About.dart';
-import 'package:flutter_test_app/SkeletonPage.dart';
-//import 'package:flutter_test_app/Profile.dart';
-import 'package:flutter_test_app/UpdateProfile.dart';
+
+import 'screens/about_page.dart';
+import 'screens/home_page.dart';
+import 'screens/update_profile_page.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const SunwayApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class SunwayApp extends StatelessWidget {
+  const SunwayApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: SkeletonPage(),
+      debugShowCheckedModeBanner: false,
+
+      title: "Sunway Timetable",
+
+      theme: ThemeData(
+        useMaterial3: true,
+
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.indigo,
+        ),
+      ),
+
+      home: const HomePage(),
+
       routes: {
-        // '/profile': (context) => Profile(),
-        '/about': (context) => About(),
-        '/updateProfile': (context) => Updateprofile(),
+        '/about': (context) => const AboutPage(),
+
+        '/updateProfile': (context) =>
+            const UpdateProfilePage(),
       },
     );
   }
