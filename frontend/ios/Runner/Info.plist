@@ -3,6 +3,10 @@
 <plist version="1.0">
 <dict>
 <key>NSCalendarsUsageDescription</key>
+	<key>CFBundleDisplayName</key>
+	<string>SunwayTimeTabler</string>
+	<key>CFBundleName</key>
+	<string>SunwayTimeTabler</string>
     <string>Add your class schedule to your calendar</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>

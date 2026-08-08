@@ -4,9 +4,9 @@
     <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
 
     <application
-        android:label="flutter_test_app"
+        android:label="SunwayTimeTabler"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
          android:usesCleartextTraffic="true" >
          <!--added this: android:usesCleartextTraffic="true"> -->
         <activity
