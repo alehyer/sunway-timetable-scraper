@@ -2,6 +2,14 @@
 
 SunwayTimeTabler is a full-stack project for retrieving a Sunway student timetable from Sunway iZone, displaying it in a Flutter app, and exporting it to a calendar or generating AI-assisted study recommendations.
 
+## Stack
+
+- **Frontend:** Flutter / Dart
+- **Backend:** Java 17 + Spring Boot
+- **Build tools:** Flutter tooling, Gradle for mobile platform builds, and Maven for the backend
+- **Key backend libraries:** Selenium, Jsoup, Lombok, Spring AI, and Ollama integration
+- **Key frontend packages:** calendar export and shared preferences / file-sharing utilities
+
 The repository is split into two main parts:
 
 - `backend/` – Java + Spring Boot service that scrapes the timetable and exposes REST endpoints
@@ -14,6 +22,16 @@ The repository is split into two main parts:
 - Display the timetable in a Flutter interface
 - Export timetable entries to the device calendar
 - Generate study recommendations using a local Ollama model
+
+## How the frontend and backend connect
+
+- The Flutter app sends HTTP `POST` requests to the Spring Boot API.
+- On Android emulators, the frontend uses `http://10.0.2.2:8020` to reach the backend running on the host machine.
+- When the student logs in, `frontend/lib/UpdateProfile.dart` posts the student ID and password to `POST /api/timetable/scrape`.
+- The backend scrapes the timetable and returns the timetable data as JSON, which the app stores in `SharedPreferences` as `timetableData`.
+- The timetable screen reads that cached data and refreshes automatically when a successful scrape updates it.
+- For AI recommendations, `frontend/lib/AI.dart` posts the current timetable data and intensity level to `POST /api/timetable/ai`.
+- The backend returns generated study slots as JSON, and the Flutter app renders them in the AI screen.
 
 ## Project structure
 
